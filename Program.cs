@@ -1,3 +1,6 @@
+using AzureQuizLab.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace AzureQuizLab
 {
     public class Program
@@ -8,6 +11,12 @@ namespace AzureQuizLab
 
             // Add services to the container.
             builder.Services.AddRazorPages();
+
+            builder.Services.AddDbContext<QuizDbContext>(options =>
+                options.UseSqlServer(
+                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    sqlOptions => sqlOptions.EnableRetryOnFailure()
+                ));
 
             var app = builder.Build();
 
