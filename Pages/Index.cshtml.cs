@@ -28,6 +28,11 @@ namespace AzureQuizLab.Pages
 
             QuizCount = _context.Quizzes.Count();
             QuestionCount = _context.Questions.Count();
+
+            _logger.LogInformation("Chargement de la page d'accueil à {Time}", DateTime.UtcNow);
+
+            _logger.LogInformation("Nombre de quiz : {QuizCount}", QuizCount);
+            _logger.LogInformation("Nombre de questions : {QuestionCount}", QuestionCount);
         }
     }
 }

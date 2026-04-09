@@ -18,6 +18,10 @@ namespace AzureQuizLab
                     sqlOptions => sqlOptions.EnableRetryOnFailure()
                 ));
 
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+            builder.Logging.AddAzureWebAppDiagnostics();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
