@@ -1,4 +1,5 @@
 using AzureQuizLab.Models;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace AzureQuizLab
@@ -12,9 +13,14 @@ namespace AzureQuizLab
             // Add services to the container.
             builder.Services.AddRazorPages();
 
+            var connectionStringBuiler = new SqlConnectionStringBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
+            if(connectionStringBuiler.Password.Length == 0)
+            {
+                connectionStringBuiler.Password = builder.Configuration["DbPassword"];
+            }
             builder.Services.AddDbContext<QuizDbContext>(options =>
                 options.UseSqlServer(
-                    builder.Configuration.GetConnectionString("DefaultConnection"),
+                    connectionStringBuiler.ConnectionString,
                     sqlOptions => sqlOptions.EnableRetryOnFailure()
                 ));
 
