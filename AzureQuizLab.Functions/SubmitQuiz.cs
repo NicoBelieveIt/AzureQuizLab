@@ -2,6 +2,7 @@ using Azure.Storage.Queues;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
 
@@ -10,12 +11,16 @@ namespace AzureQuizLab.Functions;
 public class SubmitQuiz
 {
     private readonly ILogger<SubmitQuiz> _logger;
+    private readonly IConfiguration _configuration;
     private readonly QueueClient _queueClient;
 
-    public SubmitQuiz(ILogger<SubmitQuiz> logger)
+    public SubmitQuiz(ILogger<SubmitQuiz> logger, IConfiguration configuration)
     {
         _logger = logger;
-        string connectionString = Environment.GetEnvironmentVariable("AzureWebJobsStorage") ?? throw new InvalidDataException("missing environment variable AzureWebJobsStorage");
+        _configuration = configuration;
+        string connectionString = configuration["AzureWebJobsStorageSecret"]
+                                ?? Environment.GetEnvironmentVariable("AzureWebJobsStorage")
+                                ?? throw new InvalidDataException("missing environment variable AzureWebJobsStorage");
         _queueClient = new QueueClient(connectionString, "quiz-queue", new QueueClientOptions
         {
             MessageEncoding = QueueMessageEncoding.Base64 // Important, sinon à la lecture du message, le message partira en queue poison
