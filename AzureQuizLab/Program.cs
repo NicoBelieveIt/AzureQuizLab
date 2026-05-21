@@ -13,7 +13,7 @@ namespace AzureQuizLab
             // Add services to the container.
             builder.Services.AddRazorPages();
 
-            var connectionStringBuiler = new SqlConnectionStringBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
+            /*var connectionStringBuiler = new SqlConnectionStringBuilder(builder.Configuration.GetConnectionString("DefaultConnection"));
             if(connectionStringBuiler.Password.Length == 0)
             {
                 connectionStringBuiler.Password = builder.Configuration["DbPassword"];
@@ -23,6 +23,41 @@ namespace AzureQuizLab
                     connectionStringBuiler.ConnectionString,
                     sqlOptions => sqlOptions.EnableRetryOnFailure()
                 ));
+            */
+            builder.Services.AddDbContext<QuizDbContext>(options =>
+            {
+                var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+                // Lecture depuis appsettings.Development.json en local
+                // ou depuis les variables d'environnement Azure App Service
+                var sqlServerName = builder.Configuration["SqlServerName"];
+                var sqlDatabaseName = builder.Configuration["SqlDatabaseName"];
+                var sqlPassword = builder.Configuration["DbPassword"];
+
+                // On part toujours de la DefaultConnection existante
+                var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(connectionString);
+
+                // Si SqlServerName est renseigné, on remplace le nom du serveur
+                if (!string.IsNullOrWhiteSpace(sqlServerName))
+                {
+                    sqlConnectionStringBuilder.DataSource = $"{sqlServerName}.database.windows.net";
+                }
+
+                // Si SqlDatabaseName est renseigné, on remplace le nom de la base
+                if (!string.IsNullOrWhiteSpace(sqlDatabaseName))
+                {
+                    sqlConnectionStringBuilder.InitialCatalog = sqlDatabaseName;
+                }
+
+                if (!string.IsNullOrWhiteSpace(sqlPassword))
+                {
+                    sqlConnectionStringBuilder.Password= sqlPassword;
+                }
+
+                options.UseSqlServer(
+                    sqlConnectionStringBuilder.ConnectionString,
+                    sqlOptions => sqlOptions.EnableRetryOnFailure());
+            });
 
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
