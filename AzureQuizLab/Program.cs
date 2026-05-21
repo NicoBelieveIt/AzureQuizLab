@@ -49,11 +49,6 @@ namespace AzureQuizLab
                     sqlConnectionStringBuilder.InitialCatalog = sqlDatabaseName;
                 }
 
-                if (!string.IsNullOrWhiteSpace(sqlPassword))
-                {
-                    sqlConnectionStringBuilder.Password= sqlPassword;
-                }
-
                 options.UseSqlServer(
                     sqlConnectionStringBuilder.ConnectionString,
                     sqlOptions => sqlOptions.EnableRetryOnFailure());
